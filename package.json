@@ -1,0 +1,24 @@
+{
+  "name": "Freq",
+  "version": "1.0.0",
+  "description": "Find frequent item set",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jeff-Tian/Freq.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jeff-Tian/Freq/issues"
+  },
+  "homepage": "https://github.com/Jeff-Tian/Freq#readme",
+  "dependencies": {
+    "koa": "^1.2.0",
+    "koa-static": "^2.0.0"
+  }
+}

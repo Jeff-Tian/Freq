@@ -1,0 +1,23 @@
+{
+  "name": "rreq",
+  "description": "Find frequent item set",
+  "main": "index.js",
+  "authors": [
+    "田杰 <jefftian@hcdlearning.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/Jeff-Tian/Freq",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.1.0",
+    "semantic": "https://github.com/Semantic-Org/Semantic-UI.git#^2.2.2",
+    "cytoscape": "https://github.com/cytoscape/cytoscape.js.git#^2.7.6",
+    "angular": "^1.5.7"
+  }
+}
