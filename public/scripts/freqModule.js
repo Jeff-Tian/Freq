@@ -243,30 +243,6 @@ angular.module('freqModule', [])
 
         var a3 = addEdgesToCy(cy, twoItemSet);
 
-        cy = cytoscape({
-            container: document.getElementById('cy'),
-            elements: a1.concat(a2).concat(a3),
-            style: [ // the stylesheet for the graph
-                {
-                    selector: 'node',
-                    style: {
-                        'background-color': '#aaa',
-                        'label': 'data(id)'
-                    }
-                },
-                {
-                    selector: 'edge',
-                    style: {
-                        'width': 3,
-                        'line-color': '#ccc',
-                        'target-arrow-color': '#ccc',
-                        'target-arrow-shape': 'triangle'
-                    }
-                }
-            ],
-            layout: {
-                name: 'breadthfirst'
-            }
-        });
+        cy.layout({name: 'breadthfirst'});
     }])
 ;
