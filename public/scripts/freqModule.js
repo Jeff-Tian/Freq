@@ -1,5 +1,5 @@
 angular.module('freqModule', [])
-    .factory('itemSet', [function () {
+    .factory('itemSet', [function() {
         function Set(a) {
             a = a || [];
 
@@ -14,7 +14,7 @@ angular.module('freqModule', [])
             this.elements = elements;
         }
 
-        Set.prototype.toString = function () {
+        Set.prototype.toString = function() {
             var a = [];
             for (var element in this.elements) {
                 a.push(element);
@@ -23,7 +23,7 @@ angular.module('freqModule', [])
             return '{' + a.sort().join(', ') + '}';
         };
 
-        Set.prototype.contains = function (another) {
+        Set.prototype.contains = function(another) {
             for (var element in another.elements) {
                 if (!this.elements[element]) {
                     return false;
@@ -33,11 +33,11 @@ angular.module('freqModule', [])
             return true;
         };
 
-        Set.prototype.equals = function (another) {
+        Set.prototype.equals = function(another) {
             return this.contains(another) && another.contains(this);
         };
 
-        Set.prototype.toArray = function () {
+        Set.prototype.toArray = function() {
             var a = [];
 
             for (var element in this.elements) {
@@ -49,11 +49,11 @@ angular.module('freqModule', [])
             return a;
         };
 
-        Set.prototype.clone = function () {
+        Set.prototype.clone = function() {
             return new Set(this.toArray());
         };
 
-        Set.prototype.union = function (another) {
+        Set.prototype.union = function(another) {
             var clone = this.clone();
 
             for (var element in another.elements) {
@@ -77,11 +77,11 @@ angular.module('freqModule', [])
             }
         }
 
-        WeightedSet.prototype.toString = function () {
+        WeightedSet.prototype.toString = function() {
             return JSON.stringify(this.elements);
         };
 
-        WeightedSet.prototype.toArray = function () {
+        WeightedSet.prototype.toArray = function() {
             var a = [];
 
             for (var element in this.elements) {
@@ -93,11 +93,11 @@ angular.module('freqModule', [])
             return a;
         };
 
-        WeightedSet.prototype.clone = function () {
+        WeightedSet.prototype.clone = function() {
             return new WeightedSet(this.toArray());
         };
 
-        WeightedSet.prototype.union = function (another) {
+        WeightedSet.prototype.union = function(another) {
             var clone = this.clone();
 
             for (var element in another.elements) {
@@ -107,14 +107,14 @@ angular.module('freqModule', [])
             return clone;
         };
 
-        WeightedSet.prototype.subSet = function (element) {
+        WeightedSet.prototype.subSet = function(element) {
             var s = new WeightedSet();
             s.elements[element] = this.elements[element];
 
             return s;
         };
 
-        WeightedSet.prototype.toSet = function () {
+        WeightedSet.prototype.toSet = function() {
             var a = [];
 
             for (var element in this.elements) {
@@ -125,7 +125,7 @@ angular.module('freqModule', [])
         };
 
         return {
-            make1ItemSetFrom2dList: function (list) {
+            make1ItemSetFrom2dList: function(list) {
                 var set = new WeightedSet();
 
                 for (var i = 0; i < list.length; i++) {
@@ -135,7 +135,7 @@ angular.module('freqModule', [])
                 return set;
             },
 
-            make2ItemSetFrom1ItemSet: function (oneItemSet) {
+            make2ItemSetFrom1ItemSet: function(oneItemSet) {
                 var ws = new WeightedSet();
 
                 for (var x in oneItemSet.elements) {
@@ -153,10 +153,39 @@ angular.module('freqModule', [])
                 }
 
                 return ws;
+            },
+
+            make3ItemSetFrom1ItemSet: function(oneItemSet) {
+                var ws = new WeightedSet();
+                for(var x in oneItemSet.elements){
+                    var xx = oneItemSet.subSet(x).toSet();
+                    for(var y in oneItemSet.elements) {
+                        var yy = oneItemSet.subSet(y).toSet();
+                        
+                        if(xx.equals(yy)){
+                            continue;
+                        }
+                        
+                        for(var z in oneItemSet.elements){
+                            var zz = oneItemSet.subSet(z).toSet();
+                            
+                            if(xx.equals(zz) || yy.equals(zz)){
+                                continue;
+                            }
+                            
+                            ws.elements[xx.union(yy).union(zz).toString()] = {
+                                weight: 1,
+                                source: [xx.union(yy), xx.union(zz), yy.union(zz)]
+                            };
+                        }
+                    }
+                }
+                
+                return ws;
             }
         };
     }])
-    .controller('freqCtrl', ['$scope', 'itemSet', function ($scope, itemSet) {
+    .controller('freqCtrl', ['$scope', 'itemSet', function($scope, itemSet) {
         var cy = cytoscape({
             container: document.getElementById('cy'),
             elements: [],
@@ -167,8 +196,7 @@ angular.module('freqModule', [])
                         'background-color': '#aaa',
                         'label': 'data(id)'
                     }
-                },
-                {
+                }, {
                     selector: 'edge',
                     style: {
                         'width': 3,
@@ -242,7 +270,13 @@ angular.module('freqModule', [])
         var a2 = addItemSetToCy(cy, twoItemSet);
 
         var a3 = addEdgesToCy(cy, twoItemSet);
+        
+        var threeItemSet = itemSet.make3ItemSetFrom1ItemSet(oneItemSet);
+        var a4 = addItemSetToCy(cy, threeItemSet);
+        var a5 = addEdgesToCy(cy, threeItemSet);
+        console.log(threeItemSet);
 
-        cy.layout({name: 'breadthfirst'});
-    }])
-;
+        cy.layout({
+            name: 'breadthfirst'
+        });
+    }]);
