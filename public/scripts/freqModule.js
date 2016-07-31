@@ -157,22 +157,22 @@ angular.module('freqModule', [])
 
             make3ItemSetFrom1ItemSet: function(oneItemSet) {
                 var ws = new WeightedSet();
-                for(var x in oneItemSet.elements){
+                for (var x in oneItemSet.elements) {
                     var xx = oneItemSet.subSet(x).toSet();
-                    for(var y in oneItemSet.elements) {
+                    for (var y in oneItemSet.elements) {
                         var yy = oneItemSet.subSet(y).toSet();
-                        
-                        if(xx.equals(yy)){
+
+                        if (xx.equals(yy)) {
                             continue;
                         }
-                        
-                        for(var z in oneItemSet.elements){
+
+                        for (var z in oneItemSet.elements) {
                             var zz = oneItemSet.subSet(z).toSet();
-                            
-                            if(xx.equals(zz) || yy.equals(zz)){
+
+                            if (xx.equals(zz) || yy.equals(zz)) {
                                 continue;
                             }
-                            
+
                             ws.elements[xx.union(yy).union(zz).toString()] = {
                                 weight: 1,
                                 source: [xx.union(yy), xx.union(zz), yy.union(zz)]
@@ -180,7 +180,44 @@ angular.module('freqModule', [])
                         }
                     }
                 }
-                
+
+                return ws;
+            },
+
+            make4ItemSetFrom1ItemSet: function(oneItemSet) {
+                var ws = new WeightedSet();
+                for (var x in oneItemSet.elements) {
+                    var xx = oneItemSet.subSet(x).toSet();
+                    for (var y in oneItemSet.elements) {
+                        var yy = oneItemSet.subSet(y).toSet();
+
+                        if (xx.equals(yy)) {
+                            continue;
+                        }
+
+                        for (var z in oneItemSet.elements) {
+                            var zz = oneItemSet.subSet(z).toSet();
+
+                            if (xx.equals(zz) || yy.equals(zz)) {
+                                continue;
+                            }
+
+                            for (var w in oneItemSet.elements) {
+                                var ww = oneItemSet.subSet(w).toSet();
+
+                                if (xx.equals(ww) || yy.equals(ww) || zz.equals(ww)) {
+                                    continue;
+                                }
+
+                                ws.elements[xx.union(yy).union(zz).union(ww).toString()] = {
+                                    weight: 1,
+                                    source: [xx.union(yy).union(zz), xx.union(yy).union(ww), yy.union(zz).union(ww)]
+                                };
+                            }
+                        }
+                    }
+                }
+
                 return ws;
             }
         };
@@ -241,11 +278,11 @@ angular.module('freqModule', [])
             return a;
         }
 
-        function addEdgesToCy(cy, twoItemSet) {
+        function addEdgesToCy(cy, itemSet) {
             var a = [];
-            for (var element in twoItemSet.elements) {
-                for (var i = 0; i < twoItemSet.elements[element].source.length; i++) {
-                    var source = twoItemSet.elements[element].source[i];
+            for (var element in itemSet.elements) {
+                for (var i = 0; i < itemSet.elements[element].source.length; i++) {
+                    var source = itemSet.elements[element].source[i];
                     var data = {
                         data: {
                             id: source + '-->' + element,
@@ -270,11 +307,14 @@ angular.module('freqModule', [])
         var a2 = addItemSetToCy(cy, twoItemSet);
 
         var a3 = addEdgesToCy(cy, twoItemSet);
-        
+
         var threeItemSet = itemSet.make3ItemSetFrom1ItemSet(oneItemSet);
         var a4 = addItemSetToCy(cy, threeItemSet);
         var a5 = addEdgesToCy(cy, threeItemSet);
-        console.log(threeItemSet);
+        
+        var fourItemSet = itemSet.make4ItemSetFrom1ItemSet(oneItemSet);
+        var a6 = addItemSetToCy(cy, fourItemSet);
+        var a7 = addEdgesToCy(cy, fourItemSet);
 
         cy.layout({
             name: 'breadthfirst'
