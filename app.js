@@ -9,4 +9,4 @@ app.use(function *() {
     this.body = fs.readFileSync(__dirname + '/views/index.html', 'utf-8');
 });
 
-app.listen(process.env.PORT);
+app.listen(process.env.PORT || 3000);

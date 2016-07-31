@@ -1,12 +1,12 @@
 var gulp = require('gulp');
-var karma = require('karma').server;
+var karma = require('karma').Server;
 var jade = require('gulp-jade');
 
 gulp.task('test', function (done) {
-    karma.start({
-        configFile: __dirname + '/tests/karma.conf.js',
+    new karma({
+        configFile: __dirname + '/test/karma.conf.js',
         singleRun: true
-    }, done);
+    }, done).start();
 });
 
 gulp.task('jade', function (done) {
