@@ -219,6 +219,50 @@ angular.module('freqModule', [])
                 }
 
                 return ws;
+            },
+            make5ItemSetFrom1ItemSet: function(oneItemSet) {
+                var ws = new WeightedSet();
+                for (var x in oneItemSet.elements) {
+                    var xx = oneItemSet.subSet(x).toSet();
+                    for (var y in oneItemSet.elements) {
+                        var yy = oneItemSet.subSet(y).toSet();
+
+                        if (xx.equals(yy)) {
+                            continue;
+                        }
+
+                        for (var z in oneItemSet.elements) {
+                            var zz = oneItemSet.subSet(z).toSet();
+
+                            if (xx.equals(zz) || yy.equals(zz)) {
+                                continue;
+                            }
+
+                            for (var w in oneItemSet.elements) {
+                                var ww = oneItemSet.subSet(w).toSet();
+
+                                if (xx.equals(ww) || yy.equals(ww) || zz.equals(ww)) {
+                                    continue;
+                                }
+
+                                for (var v in oneItemSet.elements) {
+                                    var vv = oneItemSet.subSet(v).toSet();
+
+                                    if (xx.equals(vv) || yy.equals(vv) || zz.equals(vv) || ww.equals(vv)) {
+                                        continue;
+                                    }
+
+                                    ws.elements[xx.union(yy).union(zz).union(ww).union(vv).toString()] = {
+                                        weight: 1,
+                                        source: []
+                                    };
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return ws;
             }
         };
     }])
@@ -311,10 +355,14 @@ angular.module('freqModule', [])
         var threeItemSet = itemSet.make3ItemSetFrom1ItemSet(oneItemSet);
         var a4 = addItemSetToCy(cy, threeItemSet);
         var a5 = addEdgesToCy(cy, threeItemSet);
-        
+
         var fourItemSet = itemSet.make4ItemSetFrom1ItemSet(oneItemSet);
         var a6 = addItemSetToCy(cy, fourItemSet);
         var a7 = addEdgesToCy(cy, fourItemSet);
+        
+        var fiveItemSet = itemSet.make5ItemSetFrom1ItemSet(oneItemSet);
+        var a8 = addItemSetToCy(cy, fiveItemSet);
+        var a9 = addEdgesToCy(cy, fiveItemSet);
 
         cy.layout({
             name: 'breadthfirst'
