@@ -1,5 +1,5 @@
 angular.module('freqModule', [])
-    .factory('itemSet', [function () {
+    .factory('Set', [function () {
         function Set(a) {
             a = a || [];
 
@@ -63,6 +63,19 @@ angular.module('freqModule', [])
             return clone;
         };
 
+        Set.union = function (a) {
+            var first = a[0];
+
+            for (var i = 1; i < a.length; i++) {
+                first = first.union(a[i]);
+            }
+
+            return first;
+        };
+
+        return Set;
+    }])
+    .factory('WeightedSet', ['Set', function (Set) {
         function WeightedSet(a) {
             a = a || [];
 
@@ -124,21 +137,15 @@ angular.module('freqModule', [])
             return new Set(a);
         };
 
-        function union(a) {
-            var res = a[0];
-            for (var i = 1; i < a.length; i++) {
-                res.union(a[i]);
-            }
-
-            return res;
-        }
-
+        return WeightedSet;
+    }])
+    .factory('itemSetOps', ['Set', 'WeightedSet', function (Set, WeightedSet) {
         function generateSource(x, y, z) {
             var a = Array.prototype.slice.call(arguments);
             var res = [];
 
             for (var i = a.length - 1; i >= 0; i--) {
-                res.push(union(a.slice(0).splice(i, 1)));
+                res.push(Set.union(a.slice(0).splice(i, 1)));
             }
 
             return res;
@@ -163,7 +170,7 @@ angular.module('freqModule', [])
             var sets = a.slice(1);
 
             if (noSameSet(sets)) {
-                weightSet.elements[union(sets).toString()] = {
+                weightSet.elements[Set.union(sets).toString()] = {
                     weight: 1,
                     source: generateSource.apply(this, sets)
                 };
@@ -204,12 +211,7 @@ angular.module('freqModule', [])
                     for (var y in oneItemSet.elements) {
                         var yy = oneItemSet.subSet(y).toSet();
 
-                        if (noSameSet([xx, yy])) {
-                            ws.elements[xx.union(yy).toString()] = {
-                                weight: 1,
-                                source: generateSource(xx, yy)
-                            };
-                        }
+                        makeSet(ws, xx, yy);
                     }
                 }
 
@@ -230,14 +232,7 @@ angular.module('freqModule', [])
                         for (var z in oneItemSet.elements) {
                             var zz = oneItemSet.subSet(z).toSet();
 
-                            if (xx.equals(zz) || yy.equals(zz)) {
-                                continue;
-                            }
-
-                            ws.elements[xx.union(yy).union(zz).toString()] = {
-                                weight: 1,
-                                source: generateSource(xx, yy, zz)
-                            };
+                            makeSet(ws, xx, yy, zz);
                         }
                     }
                 }
@@ -266,14 +261,7 @@ angular.module('freqModule', [])
                             for (var w in oneItemSet.elements) {
                                 var ww = oneItemSet.subSet(w).toSet();
 
-                                if (xx.equals(ww) || yy.equals(ww) || zz.equals(ww)) {
-                                    continue;
-                                }
-
-                                ws.elements[xx.union(yy).union(zz).union(ww).toString()] = {
-                                    weight: 1,
-                                    source: generateSource(xx, yy, zz, ww)
-                                };
+                                makeSet(ws, xx, yy, zz, ww);
                             }
                         }
                     }
@@ -309,14 +297,7 @@ angular.module('freqModule', [])
                                 for (var v in oneItemSet.elements) {
                                     var vv = oneItemSet.subSet(v).toSet();
 
-                                    if (xx.equals(vv) || yy.equals(vv) || zz.equals(vv) || ww.equals(vv)) {
-                                        continue;
-                                    }
-
-                                    ws.elements[xx.union(yy).union(zz).union(ww).union(vv).toString()] = {
-                                        weight: 1,
-                                        source: generateSource(xx, yy, zz, ww, vv)
-                                    };
+                                    makeSet(ws, xx, yy, zz, ww, vv);
                                 }
                             }
                         }
@@ -327,7 +308,7 @@ angular.module('freqModule', [])
             }
         };
     }])
-    .controller('freqCtrl', ['$scope', 'itemSet', function ($scope, itemSet) {
+    .controller('freqCtrl', ['$scope', 'itemSetOps', function ($scope, itemSetOps) {
         var cy = cytoscape({
             container: document.getElementById('cy'),
             elements: [],
@@ -413,23 +394,23 @@ angular.module('freqModule', [])
 
         window.cy = cy;
 
-        var oneItemSet = itemSet.make1ItemSetFrom1ItemSet(itemSet.make1ItemSetFrom2dList(baskets));
+        var oneItemSet = itemSetOps.make1ItemSetFrom1ItemSet(itemSetOps.make1ItemSetFrom2dList(baskets));
         var a1 = addItemSetToCy(cy, oneItemSet);
 
-        var twoItemSet = itemSet.make2ItemSetFrom1ItemSet(oneItemSet);
+        var twoItemSet = itemSetOps.make2ItemSetFrom1ItemSet(oneItemSet);
         var a2 = addItemSetToCy(cy, twoItemSet);
 
         var a3 = addEdgesToCy(cy, twoItemSet);
 
-        var threeItemSet = itemSet.make3ItemSetFrom1ItemSet(oneItemSet);
+        var threeItemSet = itemSetOps.make3ItemSetFrom1ItemSet(oneItemSet);
         var a4 = addItemSetToCy(cy, threeItemSet);
         var a5 = addEdgesToCy(cy, threeItemSet);
 
-        var fourItemSet = itemSet.make4ItemSetFrom1ItemSet(oneItemSet);
+        var fourItemSet = itemSetOps.make4ItemSetFrom1ItemSet(oneItemSet);
         var a6 = addItemSetToCy(cy, fourItemSet);
         var a7 = addEdgesToCy(cy, fourItemSet);
 
-        var fiveItemSet = itemSet.make5ItemSetFrom1ItemSet(oneItemSet);
+        var fiveItemSet = itemSetOps.make5ItemSetFrom1ItemSet(oneItemSet);
         var a8 = addItemSetToCy(cy, fiveItemSet);
         var a9 = addEdgesToCy(cy, fiveItemSet);
 
