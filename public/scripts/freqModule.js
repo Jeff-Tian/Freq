@@ -1,5 +1,5 @@
 angular.module('freqModule', [])
-    .factory('Set', [function () {
+    .factory('Set', [function() {
         function Set(a) {
             a = a || [];
 
@@ -14,7 +14,7 @@ angular.module('freqModule', [])
             this.elements = elements;
         }
 
-        Set.prototype.toString = function () {
+        Set.prototype.toString = function() {
             var a = [];
             for (var element in this.elements) {
                 a.push(element);
@@ -23,7 +23,7 @@ angular.module('freqModule', [])
             return '{' + a.sort().join(', ') + '}';
         };
 
-        Set.prototype.contains = function (another) {
+        Set.prototype.contains = function(another) {
             for (var element in another.elements) {
                 if (!this.elements[element]) {
                     return false;
@@ -33,11 +33,11 @@ angular.module('freqModule', [])
             return true;
         };
 
-        Set.prototype.equals = function (another) {
+        Set.prototype.equals = function(another) {
             return this.contains(another) && another.contains(this);
         };
 
-        Set.prototype.toArray = function () {
+        Set.prototype.toArray = function() {
             var a = [];
 
             for (var element in this.elements) {
@@ -49,11 +49,11 @@ angular.module('freqModule', [])
             return a;
         };
 
-        Set.prototype.clone = function () {
+        Set.prototype.clone = function() {
             return new Set(this.toArray());
         };
 
-        Set.prototype.union = function (another) {
+        Set.prototype.union = function(another) {
             var clone = this.clone();
 
             for (var element in another.elements) {
@@ -63,7 +63,7 @@ angular.module('freqModule', [])
             return clone;
         };
 
-        Set.union = function (a) {
+        Set.union = function(a) {
             var first = a[0];
 
             for (var i = 1; i < a.length; i++) {
@@ -75,7 +75,7 @@ angular.module('freqModule', [])
 
         return Set;
     }])
-    .factory('WeightedSet', ['Set', function (Set) {
+    .factory('WeightedSet', ['Set', function(Set) {
         function WeightedSet(a) {
             a = a || [];
 
@@ -90,11 +90,11 @@ angular.module('freqModule', [])
             }
         }
 
-        WeightedSet.prototype.toString = function () {
+        WeightedSet.prototype.toString = function() {
             return JSON.stringify(this.elements);
         };
 
-        WeightedSet.prototype.toArray = function () {
+        WeightedSet.prototype.toArray = function() {
             var a = [];
 
             for (var element in this.elements) {
@@ -106,11 +106,11 @@ angular.module('freqModule', [])
             return a;
         };
 
-        WeightedSet.prototype.clone = function () {
+        WeightedSet.prototype.clone = function() {
             return new WeightedSet(this.toArray());
         };
 
-        WeightedSet.prototype.union = function (another) {
+        WeightedSet.prototype.union = function(another) {
             var clone = this.clone();
 
             for (var element in another.elements) {
@@ -120,14 +120,14 @@ angular.module('freqModule', [])
             return clone;
         };
 
-        WeightedSet.prototype.subSet = function (element) {
+        WeightedSet.prototype.subSet = function(element) {
             var s = new WeightedSet();
             s.elements[element] = this.elements[element];
 
             return s;
         };
 
-        WeightedSet.prototype.toSet = function () {
+        WeightedSet.prototype.toSet = function() {
             var a = [];
 
             for (var element in this.elements) {
@@ -139,7 +139,7 @@ angular.module('freqModule', [])
 
         return WeightedSet;
     }])
-    .factory('itemSetOps', ['Set', 'WeightedSet', function (Set, WeightedSet) {
+    .factory('itemSetOps', ['Set', 'WeightedSet', function(Set, WeightedSet) {
         function generateSource(x, y, z) {
             var a = Array.prototype.slice.call(arguments);
             var res = [];
@@ -178,7 +178,7 @@ angular.module('freqModule', [])
         }
 
         return {
-            make1ItemSetFrom2dList: function (list) {
+            make1ItemSetFrom2dList: function(list) {
                 var set = new WeightedSet();
 
                 for (var i = 0; i < list.length; i++) {
@@ -188,7 +188,7 @@ angular.module('freqModule', [])
                 return set;
             },
 
-            make1ItemSetFrom1ItemSet: function (oneItemSet) {
+            make1ItemSetFrom1ItemSet: function(oneItemSet) {
                 var ws = new WeightedSet();
 
                 for (var x in oneItemSet.elements) {
@@ -203,7 +203,7 @@ angular.module('freqModule', [])
                 return ws;
             },
 
-            make2ItemSetFrom1ItemSet: function (oneItemSet) {
+            make2ItemSetFrom1ItemSet: function(oneItemSet) {
                 var ws = new WeightedSet();
 
                 for (var x in oneItemSet.elements) {
@@ -218,7 +218,7 @@ angular.module('freqModule', [])
                 return ws;
             },
 
-            make3ItemSetFrom1ItemSet: function (oneItemSet) {
+            make3ItemSetFrom1ItemSet: function(oneItemSet) {
                 var ws = new WeightedSet();
                 for (var x in oneItemSet.elements) {
                     var xx = oneItemSet.subSet(x).toSet();
@@ -240,7 +240,7 @@ angular.module('freqModule', [])
                 return ws;
             },
 
-            make4ItemSetFrom1ItemSet: function (oneItemSet) {
+            make4ItemSetFrom1ItemSet: function(oneItemSet) {
                 var ws = new WeightedSet();
                 for (var x in oneItemSet.elements) {
                     var xx = oneItemSet.subSet(x).toSet();
@@ -269,7 +269,7 @@ angular.module('freqModule', [])
 
                 return ws;
             },
-            make5ItemSetFrom1ItemSet: function (oneItemSet) {
+            make5ItemSetFrom1ItemSet: function(oneItemSet) {
                 var ws = new WeightedSet();
                 for (var x in oneItemSet.elements) {
                     var xx = oneItemSet.subSet(x).toSet();
@@ -305,10 +305,57 @@ angular.module('freqModule', [])
                 }
 
                 return ws;
+            },
+
+            make6ItemSetFrom1ItemSet: function(oneItemSet) {
+
+                var ws = new WeightedSet();
+                for (var x in oneItemSet.elements) {
+                    var xx = oneItemSet.subSet(x).toSet();
+                    for (var y in oneItemSet.elements) {
+                        var yy = oneItemSet.subSet(y).toSet();
+
+                        if (xx.equals(yy)) {
+                            continue;
+                        }
+
+                        for (var z in oneItemSet.elements) {
+                            var zz = oneItemSet.subSet(z).toSet();
+
+                            if (xx.equals(zz) || yy.equals(zz)) {
+                                continue;
+                            }
+
+                            for (var w in oneItemSet.elements) {
+                                var ww = oneItemSet.subSet(w).toSet();
+
+                                if (xx.equals(ww) || yy.equals(ww) || zz.equals(ww)) {
+                                    continue;
+                                }
+
+                                for (var v in oneItemSet.elements) {
+                                    var vv = oneItemSet.subSet(v).toSet();
+
+                                    if (!noSameSet([xx, yy, zz, ww, vv])) {
+                                        continue;
+                                    }
+
+                                    for (var u in oneItemSet.elements) {
+                                        var uu = oneItemSet.subSet(u).toSet();
+
+                                        makeSet(ws, xx, yy, zz, ww, vv, uu);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return ws;
             }
         };
     }])
-    .controller('freqCtrl', ['$scope', 'itemSetOps', function ($scope, itemSetOps) {
+    .controller('freqCtrl', ['$scope', 'itemSetOps', function($scope, itemSetOps) {
         var cy = cytoscape({
             container: document.getElementById('cy'),
             elements: [],
@@ -413,6 +460,12 @@ angular.module('freqModule', [])
         var fiveItemSet = itemSetOps.make5ItemSetFrom1ItemSet(oneItemSet);
         var a8 = addItemSetToCy(cy, fiveItemSet);
         var a9 = addEdgesToCy(cy, fiveItemSet);
+        
+        var sixItemSet = itemSetOps.make6ItemSetFrom1ItemSet(oneItemSet);
+        var a10 = addItemSetToCy(cy, sixItemSet);
+        var a11 = addEdgesToCy(cy, sixItemSet);
+        
+        console.log(sixItemSet);
 
         cy.layout({
             name: 'breadthfirst'
