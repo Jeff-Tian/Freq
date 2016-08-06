@@ -195,7 +195,7 @@ angular.module('freqModule', [])
                     var xx = oneItemSet.subSet(x).toSet();
 
                     ws.elements[xx.toArray()[0]] = {
-                        weight: 1,
+                        weight: oneItemSet.elements[x],
                         source: generateSource(xx)
                     };
                 }
@@ -372,6 +372,12 @@ angular.module('freqModule', [])
                         'text-margin-y': 50
                     }
                 }, {
+                    selector: 'node[weight >= 2]',
+                    style: {
+                        'border': 'solid 1px yellow',
+                        'background-color': 'yellow'
+                    }
+                }, {
                     selector: 'edge',
                     style: {
                         'width': 1,
@@ -414,10 +420,12 @@ angular.module('freqModule', [])
             var count = itemSet.toSet().toArray().length;
 
             for (var item in itemSet.elements) {
+                var theItem = itemSet.elements[item];
                 var data = {
                     group: 'nodes',
                     data: {
-                        id: getIdFor(item)
+                        id: getIdFor(item),
+                        weight: theItem.weight
                     },
                     position: {
                         x: (100 + 300 / count) * (i - count / 2),
