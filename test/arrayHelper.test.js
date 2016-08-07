@@ -10,4 +10,10 @@ describe('arrayHelper', function () {
         sub = ['c', 'd'];
         expect(arrayHelper.contains(array, sub)).toBe(false);
     }]));
+
+    it('', inject(['arrayHelper', function (arrayHelper) {
+        expect(arrayHelper.fromSetElement('{牛奶, 啤酒, 尿布}')).toEqual(['牛奶', '啤酒', '尿布']);
+
+        expect(arrayHelper.fromSetElement('牛奶')).toEqual(['牛奶']);
+    }]));
 });

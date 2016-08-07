@@ -149,6 +149,14 @@ angular.module('freqModule', [])
                 }
 
                 return true;
+            },
+
+            fromSetElement: function (setElement) {
+                if (setElement[0] !== '{') {
+                    return [setElement];
+                }
+
+                return setElement.substr(1, setElement.length - 2).split(', ');
             }
         };
     }])
@@ -158,10 +166,24 @@ angular.module('freqModule', [])
             var res = [];
 
             for (var i = a.length - 1; i >= 0; i--) {
-                res.push(Set.union(a.slice(0).splice(i, 1)));
+                res.push(Set.union(a.slice(0).splice(i, 1)).toString());
             }
 
             return res;
+        }
+
+        function generateSourceFor(lowerLevel, upperLevel) {
+            for (var item in lowerLevel.elements) {
+                var lowerArray = arrayHelper.fromSetElement(item);
+
+                for (var upperItem in upperLevel.elements) {
+                    var upperArray = arrayHelper.fromSetElement(upperItem);
+
+                    if (arrayHelper.contains(lowerArray, upperArray)) {
+                        lowerLevel.elements[item].source.push(upperItem);
+                    }
+                }
+            }
         }
 
         function noSameSet(sets) {
@@ -198,12 +220,13 @@ angular.module('freqModule', [])
                 var union = Set.union(sets);
                 weightSet.elements[union.toString()] = {
                     weight: countWeight(baskets, union),
-                    source: generateSource.apply(this, sets)
+                    source: []
                 };
             }
         }
 
         return {
+            generateSourceFor: generateSourceFor,
             make1ItemSetFrom2dList: function (list) {
                 var set = new WeightedSet();
 
@@ -222,7 +245,7 @@ angular.module('freqModule', [])
 
                     ws.elements[xx.toArray()[0]] = {
                         weight: oneItemSet.elements[x],
-                        source: generateSource(xx)
+                        source: []
                     };
                 }
 
@@ -435,11 +458,7 @@ angular.module('freqModule', [])
             var a = [];
 
             function getIdFor(item) {
-                if (item[0] === '{' && item[item.length - 1] === '}') {
-                    return item;
-                }
-
-                return '{' + item + '}';
+                return item;
             }
 
             var i = 0;
@@ -495,31 +514,39 @@ angular.module('freqModule', [])
 
         window.cy = cy;
 
-        var oneItemSet = itemSetOps.make1ItemSetFrom1ItemSet(itemSetOps.make1ItemSetFrom2dList(baskets));
+        var oneItemSet = (itemSetOps.make1ItemSetFrom2dList(baskets));
         var a1 = addItemSetToCy(cy, oneItemSet, 0);
 
         var twoItemSet = itemSetOps.make2ItemSetFrom1ItemSet(oneItemSet, baskets);
         var a2 = addItemSetToCy(cy, twoItemSet, 270);
 
+        itemSetOps.generateSourceFor(twoItemSet, oneItemSet);
+        console.log(twoItemSet);
         var a3 = addEdgesToCy(cy, twoItemSet);
 
         var threeItemSet = itemSetOps.make3ItemSetFrom1ItemSet(oneItemSet, baskets);
         var a4 = addItemSetToCy(cy, threeItemSet, 540);
+
+        itemSetOps.generateSourceFor(threeItemSet, twoItemSet);
         var a5 = addEdgesToCy(cy, threeItemSet);
 
         var fourItemSet = itemSetOps.make4ItemSetFrom1ItemSet(oneItemSet, baskets);
         var a6 = addItemSetToCy(cy, fourItemSet, 810);
+
+        itemSetOps.generateSourceFor(fourItemSet, threeItemSet);
         var a7 = addEdgesToCy(cy, fourItemSet);
 
         var fiveItemSet = itemSetOps.make5ItemSetFrom1ItemSet(oneItemSet, baskets);
         var a8 = addItemSetToCy(cy, fiveItemSet, 1080);
+
+        itemSetOps.generateSourceFor(fiveItemSet, fourItemSet);
         var a9 = addEdgesToCy(cy, fiveItemSet);
 
         var sixItemSet = itemSetOps.make6ItemSetFrom1ItemSet(oneItemSet, baskets);
         var a10 = addItemSetToCy(cy, sixItemSet, 1350);
-        var a11 = addEdgesToCy(cy, sixItemSet);
 
-        console.log(sixItemSet);
+        itemSetOps.generateSourceFor(sixItemSet, fiveItemSet);
+        var a11 = addEdgesToCy(cy, sixItemSet);
 
         cy.layout({
             name: 'grid'
