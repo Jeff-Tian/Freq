@@ -139,7 +139,20 @@ angular.module('freqModule', [])
 
         return WeightedSet;
     }])
-    .factory('itemSetOps', ['Set', 'WeightedSet', function (Set, WeightedSet) {
+    .factory('arrayHelper', [function () {
+        return {
+            contains: function (array, sub) {
+                for (var i = 0; i < sub.length; i++) {
+                    if (array.indexOf(sub[i]) < 0) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        };
+    }])
+    .factory('itemSetOps', ['Set', 'WeightedSet', 'arrayHelper', function (Set, WeightedSet, arrayHelper) {
         function generateSource(x, y, z) {
             var a = Array.prototype.slice.call(arguments);
             var res = [];
@@ -163,15 +176,28 @@ angular.module('freqModule', [])
             return true;
         }
 
-        function makeSet(weightSet, xx, yy) {
+        function countWeight(baskets, union) {
+            var count = 0;
+
+            for (var i = 0; i < baskets.length; i++) {
+                if (arrayHelper.contains(baskets[i], union.toArray())) {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        function makeSet(baskets, weightSet, xx, yy) {
             var a = Array.prototype.slice.call(arguments);
 
-            weightSet = a[0];
-            var sets = a.slice(1);
+            weightSet = a[1];
+            var sets = a.slice(2);
 
             if (noSameSet(sets)) {
-                weightSet.elements[Set.union(sets).toString()] = {
-                    weight: 1,
+                var union = Set.union(sets);
+                weightSet.elements[union.toString()] = {
+                    weight: countWeight(baskets, union),
                     source: generateSource.apply(this, sets)
                 };
             }
@@ -203,7 +229,7 @@ angular.module('freqModule', [])
                 return ws;
             },
 
-            make2ItemSetFrom1ItemSet: function (oneItemSet) {
+            make2ItemSetFrom1ItemSet: function (oneItemSet, baskets) {
                 var ws = new WeightedSet();
 
                 for (var x in oneItemSet.elements) {
@@ -211,14 +237,14 @@ angular.module('freqModule', [])
                     for (var y in oneItemSet.elements) {
                         var yy = oneItemSet.subSet(y).toSet();
 
-                        makeSet(ws, xx, yy);
+                        makeSet(baskets, ws, xx, yy);
                     }
                 }
 
                 return ws;
             },
 
-            make3ItemSetFrom1ItemSet: function (oneItemSet) {
+            make3ItemSetFrom1ItemSet: function (oneItemSet, baskets) {
                 var ws = new WeightedSet();
                 for (var x in oneItemSet.elements) {
                     var xx = oneItemSet.subSet(x).toSet();
@@ -232,7 +258,7 @@ angular.module('freqModule', [])
                         for (var z in oneItemSet.elements) {
                             var zz = oneItemSet.subSet(z).toSet();
 
-                            makeSet(ws, xx, yy, zz);
+                            makeSet(baskets, ws, xx, yy, zz);
                         }
                     }
                 }
@@ -240,7 +266,7 @@ angular.module('freqModule', [])
                 return ws;
             },
 
-            make4ItemSetFrom1ItemSet: function (oneItemSet) {
+            make4ItemSetFrom1ItemSet: function (oneItemSet, baskets) {
                 var ws = new WeightedSet();
                 for (var x in oneItemSet.elements) {
                     var xx = oneItemSet.subSet(x).toSet();
@@ -261,7 +287,7 @@ angular.module('freqModule', [])
                             for (var w in oneItemSet.elements) {
                                 var ww = oneItemSet.subSet(w).toSet();
 
-                                makeSet(ws, xx, yy, zz, ww);
+                                makeSet(baskets, ws, xx, yy, zz, ww);
                             }
                         }
                     }
@@ -269,7 +295,7 @@ angular.module('freqModule', [])
 
                 return ws;
             },
-            make5ItemSetFrom1ItemSet: function (oneItemSet) {
+            make5ItemSetFrom1ItemSet: function (oneItemSet, baskets) {
                 var ws = new WeightedSet();
                 for (var x in oneItemSet.elements) {
                     var xx = oneItemSet.subSet(x).toSet();
@@ -297,7 +323,7 @@ angular.module('freqModule', [])
                                 for (var v in oneItemSet.elements) {
                                     var vv = oneItemSet.subSet(v).toSet();
 
-                                    makeSet(ws, xx, yy, zz, ww, vv);
+                                    makeSet(baskets, ws, xx, yy, zz, ww, vv);
                                 }
                             }
                         }
@@ -307,7 +333,7 @@ angular.module('freqModule', [])
                 return ws;
             },
 
-            make6ItemSetFrom1ItemSet: function (oneItemSet) {
+            make6ItemSetFrom1ItemSet: function (oneItemSet, baskets) {
 
                 var ws = new WeightedSet();
                 for (var x in oneItemSet.elements) {
@@ -343,7 +369,7 @@ angular.module('freqModule', [])
                                     for (var u in oneItemSet.elements) {
                                         var uu = oneItemSet.subSet(u).toSet();
 
-                                        makeSet(ws, xx, yy, zz, ww, vv, uu);
+                                        makeSet(baskets, ws, xx, yy, zz, ww, vv, uu);
                                     }
                                 }
                             }
@@ -472,24 +498,24 @@ angular.module('freqModule', [])
         var oneItemSet = itemSetOps.make1ItemSetFrom1ItemSet(itemSetOps.make1ItemSetFrom2dList(baskets));
         var a1 = addItemSetToCy(cy, oneItemSet, 0);
 
-        var twoItemSet = itemSetOps.make2ItemSetFrom1ItemSet(oneItemSet);
+        var twoItemSet = itemSetOps.make2ItemSetFrom1ItemSet(oneItemSet, baskets);
         var a2 = addItemSetToCy(cy, twoItemSet, 270);
 
         var a3 = addEdgesToCy(cy, twoItemSet);
 
-        var threeItemSet = itemSetOps.make3ItemSetFrom1ItemSet(oneItemSet);
+        var threeItemSet = itemSetOps.make3ItemSetFrom1ItemSet(oneItemSet, baskets);
         var a4 = addItemSetToCy(cy, threeItemSet, 540);
         var a5 = addEdgesToCy(cy, threeItemSet);
 
-        var fourItemSet = itemSetOps.make4ItemSetFrom1ItemSet(oneItemSet);
+        var fourItemSet = itemSetOps.make4ItemSetFrom1ItemSet(oneItemSet, baskets);
         var a6 = addItemSetToCy(cy, fourItemSet, 810);
         var a7 = addEdgesToCy(cy, fourItemSet);
 
-        var fiveItemSet = itemSetOps.make5ItemSetFrom1ItemSet(oneItemSet);
+        var fiveItemSet = itemSetOps.make5ItemSetFrom1ItemSet(oneItemSet, baskets);
         var a8 = addItemSetToCy(cy, fiveItemSet, 1080);
         var a9 = addEdgesToCy(cy, fiveItemSet);
 
-        var sixItemSet = itemSetOps.make6ItemSetFrom1ItemSet(oneItemSet);
+        var sixItemSet = itemSetOps.make6ItemSetFrom1ItemSet(oneItemSet, baskets);
         var a10 = addItemSetToCy(cy, sixItemSet, 1350);
         var a11 = addEdgesToCy(cy, sixItemSet);
 
