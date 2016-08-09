@@ -514,7 +514,7 @@ angular.module('freqModule', [])
 
         window.cy = cy;
 
-        var oneItemSet = (itemSetOps.make1ItemSetFrom2dList(baskets));
+        var oneItemSet = itemSetOps.make1ItemSetFrom1ItemSet(itemSetOps.make1ItemSetFrom2dList(baskets));
         var a1 = addItemSetToCy(cy, oneItemSet, 0);
 
         var twoItemSet = itemSetOps.make2ItemSetFrom1ItemSet(oneItemSet, baskets);
