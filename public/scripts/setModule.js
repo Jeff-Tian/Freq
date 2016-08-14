@@ -381,6 +381,23 @@ angular.module('setModule', [])
             }
 
             return ws;
+        },
+        
+        makeSupperItemSetFrom: function (subItemSet, baskets){
+            var ws = new WeightedSet();
+            
+            for(var x in subItemSet.elements){
+                var xx = subItemSet.subSet(x).toSet();
+                console.log(xx);
+                for (var y in subItemSet.elements){
+                    var yy = subItemSet.subSet(y).toSet();
+                    console.log(yy);
+                    
+                    makeSet(baskets, ws, xx, yy);
+                }
+            }
+            
+            return ws;
         }
     };
 }]);
