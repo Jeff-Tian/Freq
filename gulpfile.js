@@ -13,6 +13,9 @@ gulp.task('jade', function (done) {
     var jadeFiles = [{
         src: './views/index.jade',
         dest: './views/'
+    }, {
+        src: './views/apriori.jade',
+        dest: './views/'
     }];
 
     return jadeFiles.forEach(function (jf) {
@@ -22,7 +25,5 @@ gulp.task('jade', function (done) {
             .pipe(jade())
             .pipe(gulp.dest(jf.dest))
         ;
-
-        done();
     });
 });

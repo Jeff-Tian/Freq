@@ -1,0 +1,50 @@
+html
+    head
+        meta(charset="utf-8")
+        meta(http-equiv="X-UA-Compatible", content="IE=edge,chrome=1")
+        meta(name="view-port", content="width=device-width, initial-scale=1.0, maximum-scale=1.0")
+        meta(name="description", content="Find frequent item sets")
+        title Find frequent item sets
+        link(rel="shortcut icon", href="")
+        link(rel="stylesheet", type="text/css", href="/bower_components/semantic/dist/semantic.min.css")
+        style(type="text/css").
+            .deleted {
+                background-color: #ccc;
+            }
+    body
+        div(ng-app="aprioriModule", ng-controller="aprioriCtrl")
+            table.ui.basic.table
+                caption 第1个候选项集
+                thead
+                    tr
+                        th 候选项集
+                        th 支持度
+                        th 是否频繁项集？
+                tbody
+                    tr(ng-repeat="(item, counts) in firstCandidates.elements")
+                        td {{item}}
+                        td {{counts}}
+                        td {{counts >= 2}}
+                        
+            p 连接并生成第二候选项集
+            table.ui.basic.table
+                caption 第2个候选项集
+                thead 
+                    tr 
+                        th 候选项集
+                        th 支持度
+                        th 是否频繁项集？
+                tbody
+                    tr(ng-repeat="(item, info) in secondCandidates.elements", ng-class="{'deleted': info.weight < 2}")
+                        td {{item}}
+                        td {{info.weight}}
+                        td {{info.weight >= 2}}
+                        
+                        
+
+        script(src="/bower_components/jquery/dist/jquery.min.js")
+        script(src="/bower_components/angular/angular.min.js")
+        script(src="/bower_components/semantic/dist/semantic.min.js")
+        script(src="/scripts/arrayHelper.js")
+        script(src="/scripts/setModule.js")
+        script(src="/scripts/apriori.js")
