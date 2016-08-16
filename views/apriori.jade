@@ -25,12 +25,12 @@ html
                         td {{item}}
                         td {{counts}}
                         td {{counts >= 2}}
-                        
+
             p 连接并生成第二候选项集
             table.ui.basic.table
                 caption 第2个候选项集
-                thead 
-                    tr 
+                thead
+                    tr
                         th 候选项集
                         th 支持度
                         th 是否频繁项集？
@@ -39,12 +39,12 @@ html
                         td {{item}}
                         td {{info.weight}}
                         td {{info.weight >= 2}}
-                        
+
             p 连接并生成第三候选项集
             table.ui.basic.table
                 caption 第3个候选项集
-                thead 
-                    tr 
+                thead
+                    tr
                         th 候选项集
                         th 支持度
                         th 是否频繁项集？
@@ -53,9 +53,20 @@ html
                         td {{item}}
                         td {{info.weight}}
                         td {{info.weight >= 2}}
-                        
-                        
-                        
+            p 连接并生成第四候选项集
+            table.ui.basic.table
+                caption 第4个候选项集
+                thead
+                    tr
+                        th 候选项集
+                        th 支持度
+                        th 是否频繁项集?
+                tbody
+                    tr(ng-repeat="(item, info) in fourthCandidates.elements", ng-class="{'deleted': info.weight < 2}")
+                        td {{item}}
+                        td {{info.weight}}
+                        td {{info.weight >= 2}}
+
 
         script(src="/bower_components/jquery/dist/jquery.min.js")
         script(src="/bower_components/angular/angular.min.js")

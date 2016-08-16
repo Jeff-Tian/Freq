@@ -1,5 +1,5 @@
 angular.module('setModule', [])
-    .factory('Set', [function() {
+    .factory('Set', [function () {
         function Set(a) {
             a = a || [];
 
@@ -14,7 +14,7 @@ angular.module('setModule', [])
             this.elements = elements;
         }
 
-        Set.prototype.toString = function() {
+        Set.prototype.toString = function () {
             var a = [];
             for (var element in this.elements) {
                 a.push(element);
@@ -23,7 +23,7 @@ angular.module('setModule', [])
             return '{' + a.sort().join(', ') + '}';
         };
 
-        Set.prototype.contains = function(another) {
+        Set.prototype.contains = function (another) {
             for (var element in another.elements) {
                 if (!this.elements[element]) {
                     return false;
@@ -33,11 +33,11 @@ angular.module('setModule', [])
             return true;
         };
 
-        Set.prototype.equals = function(another) {
+        Set.prototype.equals = function (another) {
             return this.contains(another) && another.contains(this);
         };
 
-        Set.prototype.toArray = function() {
+        Set.prototype.toArray = function () {
             var a = [];
 
             for (var element in this.elements) {
@@ -49,11 +49,11 @@ angular.module('setModule', [])
             return a;
         };
 
-        Set.prototype.clone = function() {
+        Set.prototype.clone = function () {
             return new Set(this.toArray());
         };
 
-        Set.prototype.union = function(another) {
+        Set.prototype.union = function (another) {
             var clone = this.clone();
 
             for (var element in another.elements) {
@@ -63,7 +63,7 @@ angular.module('setModule', [])
             return clone;
         };
 
-        Set.union = function(a) {
+        Set.union = function (a) {
             var first = a[0];
 
             for (var i = 1; i < a.length; i++) {
@@ -75,7 +75,7 @@ angular.module('setModule', [])
 
         return Set;
     }])
-    .factory('WeightedSet', ['Set', function(Set) {
+    .factory('WeightedSet', ['Set', function (Set) {
         function WeightedSet(a) {
             a = a || [];
 
@@ -90,11 +90,11 @@ angular.module('setModule', [])
             }
         }
 
-        WeightedSet.prototype.toString = function() {
+        WeightedSet.prototype.toString = function () {
             return JSON.stringify(this.elements);
         };
 
-        WeightedSet.prototype.toArray = function() {
+        WeightedSet.prototype.toArray = function () {
             var a = [];
 
             for (var element in this.elements) {
@@ -106,11 +106,11 @@ angular.module('setModule', [])
             return a;
         };
 
-        WeightedSet.prototype.clone = function() {
+        WeightedSet.prototype.clone = function () {
             return new WeightedSet(this.toArray());
         };
 
-        WeightedSet.prototype.union = function(another) {
+        WeightedSet.prototype.union = function (another) {
             var clone = this.clone();
 
             for (var element in another.elements) {
@@ -120,14 +120,14 @@ angular.module('setModule', [])
             return clone;
         };
 
-        WeightedSet.prototype.subSet = function(element) {
+        WeightedSet.prototype.subSet = function (element) {
             var s = new WeightedSet();
             s.elements[element] = this.elements[element];
 
             return s;
         };
 
-        WeightedSet.prototype.toSet = function() {
+        WeightedSet.prototype.toSet = function () {
             var a = [];
 
             for (var element in this.elements) {
@@ -140,264 +140,274 @@ angular.module('setModule', [])
         return WeightedSet;
     }])
 
-.factory('itemSetOps', ['Set', 'WeightedSet', 'arrayHelper', function(Set, WeightedSet, arrayHelper) {
-    function generateSource(x, y, z) {
-        var a = Array.prototype.slice.call(arguments);
-        var res = [];
+    .factory('itemSetOps', ['Set', 'WeightedSet', 'arrayHelper', function (Set, WeightedSet, arrayHelper) {
+        function generateSource(x, y, z) {
+            var a = Array.prototype.slice.call(arguments);
+            var res = [];
 
-        for (var i = a.length - 1; i >= 0; i--) {
-            res.push(Set.union(a.slice(0).splice(i, 1)).toString());
-        }
-
-        return res;
-    }
-
-    function generateSourceFor(lowerLevel, upperLevel) {
-        for (var item in lowerLevel.elements) {
-            var lowerArray = arrayHelper.fromSetElement(item);
-
-            for (var upperItem in upperLevel.elements) {
-                var upperArray = arrayHelper.fromSetElement(upperItem);
-
-                if (arrayHelper.contains(lowerArray, upperArray)) {
-                    lowerLevel.elements[item].source.push(upperItem);
-                }
+            for (var i = a.length - 1; i >= 0; i--) {
+                res.push(Set.union(a.slice(0).splice(i, 1)).toString());
             }
-        }
-    }
 
-    function noSameSet(sets) {
-        for (var i = 0; i < sets.length; i++) {
-            for (var j = i + 1; j < sets.length; j++) {
-                if (sets[i].equals(sets[j])) {
-                    return false;
+            return res;
+        }
+
+        function generateSourceFor(lowerLevel, upperLevel) {
+            for (var item in lowerLevel.elements) {
+                var lowerArray = arrayHelper.fromSetElement(item);
+
+                for (var upperItem in upperLevel.elements) {
+                    var upperArray = arrayHelper.fromSetElement(upperItem);
+
+                    if (arrayHelper.contains(lowerArray, upperArray)) {
+                        lowerLevel.elements[item].source.push(upperItem);
+                    }
                 }
             }
         }
 
-        return true;
-    }
-
-    function countWeight(baskets, union) {
-        var count = 0;
-
-        for (var i = 0; i < baskets.length; i++) {
-            if (arrayHelper.contains(baskets[i], union.toArray())) {
-                count++;
-            }
-        }
-
-        return count;
-    }
-
-    function makeSet(baskets, weightSet, xx, yy) {
-        var a = Array.prototype.slice.call(arguments);
-
-        weightSet = a[1];
-        var sets = a.slice(2);
-
-        if (noSameSet(sets)) {
-            var union = Set.union(sets);
-            weightSet.elements[union.toString()] = {
-                weight: countWeight(baskets, union),
-                source: []
-            };
-        }
-    }
-
-    return {
-        generateSourceFor: generateSourceFor,
-        make1ItemSetFrom2dList: function(list) {
-            var set = new WeightedSet();
-
-            for (var i = 0; i < list.length; i++) {
-                set = set.union(new WeightedSet(list[i]))
+        function noSameSet(sets) {
+            for (var i = 0; i < sets.length; i++) {
+                for (var j = i + 1; j < sets.length; j++) {
+                    if (sets[i].equals(sets[j])) {
+                        return false;
+                    }
+                }
             }
 
-            return set;
-        },
+            return true;
+        }
 
-        make1ItemSetFrom1ItemSet: function(oneItemSet) {
-            var ws = new WeightedSet();
+        function countWeight(baskets, union) {
+            var count = 0;
 
-            for (var x in oneItemSet.elements) {
-                var xx = oneItemSet.subSet(x).toSet();
+            for (var i = 0; i < baskets.length; i++) {
+                if (arrayHelper.contains(baskets[i], union.toArray())) {
+                    count++;
+                }
+            }
 
-                ws.elements[xx.toArray()[0]] = {
-                    weight: oneItemSet.elements[x],
+            return count;
+        }
+
+        function makeSet(baskets, weightSet, xx, yy) {
+            var a = Array.prototype.slice.call(arguments);
+
+            weightSet = a[1];
+            var sets = a.slice(2);
+
+            if (noSameSet(sets)) {
+                var union = Set.union(sets);
+                weightSet.elements[union.toString()] = {
+                    weight: countWeight(baskets, union),
                     source: []
                 };
             }
+        }
 
-            return ws;
-        },
+        return {
+            generateSourceFor: generateSourceFor,
+            make1ItemSetFrom2dList: function (list) {
+                var set = new WeightedSet();
 
-        make2ItemSetFrom1ItemSet: function(oneItemSet, baskets) {
-            var ws = new WeightedSet();
-
-            for (var x in oneItemSet.elements) {
-                var xx = oneItemSet.subSet(x).toSet();
-                for (var y in oneItemSet.elements) {
-                    var yy = oneItemSet.subSet(y).toSet();
-
-                    makeSet(baskets, ws, xx, yy);
+                for (var i = 0; i < list.length; i++) {
+                    set = set.union(new WeightedSet(list[i]))
                 }
-            }
 
-            return ws;
-        },
+                return set;
+            },
 
-        make3ItemSetFrom1ItemSet: function(oneItemSet, baskets) {
-            var ws = new WeightedSet();
-            for (var x in oneItemSet.elements) {
-                var xx = oneItemSet.subSet(x).toSet();
-                for (var y in oneItemSet.elements) {
-                    var yy = oneItemSet.subSet(y).toSet();
+            make1ItemSetFrom1ItemSet: function (oneItemSet) {
+                var ws = new WeightedSet();
 
-                    if (xx.equals(yy)) {
-                        continue;
-                    }
+                for (var x in oneItemSet.elements) {
+                    var xx = oneItemSet.subSet(x).toSet();
 
-                    for (var z in oneItemSet.elements) {
-                        var zz = oneItemSet.subSet(z).toSet();
+                    ws.elements[xx.toArray()[0]] = {
+                        weight: oneItemSet.elements[x],
+                        source: []
+                    };
+                }
 
-                        makeSet(baskets, ws, xx, yy, zz);
+                return ws;
+            },
+
+            make2ItemSetFrom1ItemSet: function (oneItemSet, baskets) {
+                var ws = new WeightedSet();
+
+                for (var x in oneItemSet.elements) {
+                    var xx = oneItemSet.subSet(x).toSet();
+                    for (var y in oneItemSet.elements) {
+                        var yy = oneItemSet.subSet(y).toSet();
+
+                        makeSet(baskets, ws, xx, yy);
                     }
                 }
-            }
 
-            return ws;
-        },
+                return ws;
+            },
 
-        make4ItemSetFrom1ItemSet: function(oneItemSet, baskets) {
-            var ws = new WeightedSet();
-            for (var x in oneItemSet.elements) {
-                var xx = oneItemSet.subSet(x).toSet();
-                for (var y in oneItemSet.elements) {
-                    var yy = oneItemSet.subSet(y).toSet();
+            make3ItemSetFrom1ItemSet: function (oneItemSet, baskets) {
+                var ws = new WeightedSet();
+                for (var x in oneItemSet.elements) {
+                    var xx = oneItemSet.subSet(x).toSet();
+                    for (var y in oneItemSet.elements) {
+                        var yy = oneItemSet.subSet(y).toSet();
 
-                    if (xx.equals(yy)) {
-                        continue;
-                    }
-
-                    for (var z in oneItemSet.elements) {
-                        var zz = oneItemSet.subSet(z).toSet();
-
-                        if (xx.equals(zz) || yy.equals(zz)) {
+                        if (xx.equals(yy)) {
                             continue;
                         }
 
-                        for (var w in oneItemSet.elements) {
-                            var ww = oneItemSet.subSet(w).toSet();
+                        for (var z in oneItemSet.elements) {
+                            var zz = oneItemSet.subSet(z).toSet();
 
-                            makeSet(baskets, ws, xx, yy, zz, ww);
+                            makeSet(baskets, ws, xx, yy, zz);
                         }
                     }
                 }
-            }
 
-            return ws;
-        },
-        make5ItemSetFrom1ItemSet: function(oneItemSet, baskets) {
-            var ws = new WeightedSet();
-            for (var x in oneItemSet.elements) {
-                var xx = oneItemSet.subSet(x).toSet();
-                for (var y in oneItemSet.elements) {
-                    var yy = oneItemSet.subSet(y).toSet();
+                return ws;
+            },
 
-                    if (xx.equals(yy)) {
-                        continue;
-                    }
+            make4ItemSetFrom1ItemSet: function (oneItemSet, baskets) {
+                var ws = new WeightedSet();
+                for (var x in oneItemSet.elements) {
+                    var xx = oneItemSet.subSet(x).toSet();
+                    for (var y in oneItemSet.elements) {
+                        var yy = oneItemSet.subSet(y).toSet();
 
-                    for (var z in oneItemSet.elements) {
-                        var zz = oneItemSet.subSet(z).toSet();
-
-                        if (xx.equals(zz) || yy.equals(zz)) {
+                        if (xx.equals(yy)) {
                             continue;
                         }
 
-                        for (var w in oneItemSet.elements) {
-                            var ww = oneItemSet.subSet(w).toSet();
+                        for (var z in oneItemSet.elements) {
+                            var zz = oneItemSet.subSet(z).toSet();
 
-                            if (xx.equals(ww) || yy.equals(ww) || zz.equals(ww)) {
+                            if (xx.equals(zz) || yy.equals(zz)) {
                                 continue;
                             }
 
-                            for (var v in oneItemSet.elements) {
-                                var vv = oneItemSet.subSet(v).toSet();
+                            for (var w in oneItemSet.elements) {
+                                var ww = oneItemSet.subSet(w).toSet();
 
-                                makeSet(baskets, ws, xx, yy, zz, ww, vv);
+                                makeSet(baskets, ws, xx, yy, zz, ww);
                             }
                         }
                     }
                 }
-            }
 
-            return ws;
-        },
+                return ws;
+            },
+            make5ItemSetFrom1ItemSet: function (oneItemSet, baskets) {
+                var ws = new WeightedSet();
+                for (var x in oneItemSet.elements) {
+                    var xx = oneItemSet.subSet(x).toSet();
+                    for (var y in oneItemSet.elements) {
+                        var yy = oneItemSet.subSet(y).toSet();
 
-        make6ItemSetFrom1ItemSet: function(oneItemSet, baskets) {
-
-            var ws = new WeightedSet();
-            for (var x in oneItemSet.elements) {
-                var xx = oneItemSet.subSet(x).toSet();
-                for (var y in oneItemSet.elements) {
-                    var yy = oneItemSet.subSet(y).toSet();
-
-                    if (xx.equals(yy)) {
-                        continue;
-                    }
-
-                    for (var z in oneItemSet.elements) {
-                        var zz = oneItemSet.subSet(z).toSet();
-
-                        if (xx.equals(zz) || yy.equals(zz)) {
+                        if (xx.equals(yy)) {
                             continue;
                         }
 
-                        for (var w in oneItemSet.elements) {
-                            var ww = oneItemSet.subSet(w).toSet();
+                        for (var z in oneItemSet.elements) {
+                            var zz = oneItemSet.subSet(z).toSet();
 
-                            if (xx.equals(ww) || yy.equals(ww) || zz.equals(ww)) {
+                            if (xx.equals(zz) || yy.equals(zz)) {
                                 continue;
                             }
 
-                            for (var v in oneItemSet.elements) {
-                                var vv = oneItemSet.subSet(v).toSet();
+                            for (var w in oneItemSet.elements) {
+                                var ww = oneItemSet.subSet(w).toSet();
 
-                                if (!noSameSet([xx, yy, zz, ww, vv])) {
+                                if (xx.equals(ww) || yy.equals(ww) || zz.equals(ww)) {
                                     continue;
                                 }
 
-                                for (var u in oneItemSet.elements) {
-                                    var uu = oneItemSet.subSet(u).toSet();
+                                for (var v in oneItemSet.elements) {
+                                    var vv = oneItemSet.subSet(v).toSet();
 
-                                    makeSet(baskets, ws, xx, yy, zz, ww, vv, uu);
+                                    makeSet(baskets, ws, xx, yy, zz, ww, vv);
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            return ws;
-        },
-        
-        makeSupperItemSetFrom: function (subItemSet, baskets){
-            var ws = new WeightedSet();
-            
-            for(var x in subItemSet.elements){
-                var xx = subItemSet.subSet(x).toSet();
-                console.log(xx);
-                for (var y in subItemSet.elements){
-                    var yy = subItemSet.subSet(y).toSet();
-                    console.log(yy);
-                    
-                    makeSet(baskets, ws, xx, yy);
+                return ws;
+            },
+
+            make6ItemSetFrom1ItemSet: function (oneItemSet, baskets) {
+
+                var ws = new WeightedSet();
+                for (var x in oneItemSet.elements) {
+                    var xx = oneItemSet.subSet(x).toSet();
+                    for (var y in oneItemSet.elements) {
+                        var yy = oneItemSet.subSet(y).toSet();
+
+                        if (xx.equals(yy)) {
+                            continue;
+                        }
+
+                        for (var z in oneItemSet.elements) {
+                            var zz = oneItemSet.subSet(z).toSet();
+
+                            if (xx.equals(zz) || yy.equals(zz)) {
+                                continue;
+                            }
+
+                            for (var w in oneItemSet.elements) {
+                                var ww = oneItemSet.subSet(w).toSet();
+
+                                if (xx.equals(ww) || yy.equals(ww) || zz.equals(ww)) {
+                                    continue;
+                                }
+
+                                for (var v in oneItemSet.elements) {
+                                    var vv = oneItemSet.subSet(v).toSet();
+
+                                    if (!noSameSet([xx, yy, zz, ww, vv])) {
+                                        continue;
+                                    }
+
+                                    for (var u in oneItemSet.elements) {
+                                        var uu = oneItemSet.subSet(u).toSet();
+
+                                        makeSet(baskets, ws, xx, yy, zz, ww, vv, uu);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
+
+                return ws;
+            },
+
+            makeSupperItemSetFrom: function (subItemSet, baskets) {
+                var ws = new WeightedSet();
+
+                for (var x in subItemSet.elements) {
+                    for (var y in subItemSet.elements) {
+                        var xxArray = arrayHelper.fromSetElement(x);
+                        var yyArray = arrayHelper.fromSetElement(y);
+
+                        var xx = new Set(xxArray);
+                        var yy = new Set(yyArray);
+
+                        if (noSameSet([xx, yy])) {
+                            var union = xx.union(yy);
+
+                            if (union.toArray().length - xxArray.length === 1) {
+                                ws.elements[union.toString()] = {
+                                    weight: countWeight(baskets, union),
+                                    source: []
+                                };
+                            }
+                        }
+                    }
+                }
+
+                return ws;
             }
-            
-            return ws;
-        }
-    };
-}]);
+        };
+    }]);

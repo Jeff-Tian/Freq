@@ -1,7 +1,7 @@
-describe('itemSetOps', function() {
+describe('itemSetOps', function () {
     beforeEach(angular.mock.module('freqModule'));
 
-    it('should make', inject(['itemSetOps', 'WeightedSet', function(itemSetOps, WeightedSet) {
+    it('should make', inject(['itemSetOps', 'WeightedSet', function (itemSetOps, WeightedSet) {
         var baskets = [
             ['牛奶', '啤酒', '尿布', '牛奶']
         ];
@@ -27,7 +27,7 @@ describe('itemSetOps', function() {
         });
     }]));
 
-    it('', inject(['Set', 'WeightedSet', 'itemSetOps', function(Set, WeightedSet, itemSetOps) {
+    it('', inject(['Set', 'WeightedSet', 'itemSetOps', function (Set, WeightedSet, itemSetOps) {
         var baskets = [
             ['牛奶', '啤酒', '尿布', '牛奶']
         ];
@@ -47,19 +47,38 @@ describe('itemSetOps', function() {
         });
     }]));
 
-    it('', inject(['Set', 'WeightedSet', 'itemSetOps', function(Set, WeightedSet, itemSetOps) {
+    it('', inject(['Set', 'WeightedSet', 'itemSetOps', function (Set, WeightedSet, itemSetOps) {
         var baskets = [
             ['牛奶', '啤酒', '尿布', '牛奶']
         ];
         var oneItemSet = itemSetOps.make1ItemSetFrom1ItemSet(itemSetOps.make1ItemSetFrom2dList(baskets));
         var twoItemSet = itemSetOps.make2ItemSetFrom1ItemSet(oneItemSet, baskets);
 
-        var threeItemSet = itemSetOps.makeSupperItemSetFrom(oneItemSet, baskets);
+        var threeItemSet = itemSetOps.makeSupperItemSetFrom(twoItemSet, baskets);
 
         expect(threeItemSet.elements).toEqual({
             "{啤酒, 尿布, 牛奶}": {
                 "weight": 1,
+                source: []
             }
+        });
+    }]));
+
+    it('', inject(['Set', 'WeightedSet', 'itemSetOps', function (Set, WeightedSet, itemSetOps) {
+        var baskets = [
+            ['牛奶', '啤酒', '尿布', '面包']
+        ];
+
+        var oneItemSet = itemSetOps.make1ItemSetFrom1ItemSet(itemSetOps.make1ItemSetFrom2dList(baskets));
+        var twoItemSet = itemSetOps.make2ItemSetFrom1ItemSet(oneItemSet, baskets);
+
+        var threeItemSet = itemSetOps.makeSupperItemSetFrom(twoItemSet, baskets);
+
+        expect(threeItemSet.elements).toEqual({
+            '{啤酒, 尿布, 牛奶}': {weight: 1, source: []},
+            '{啤酒, 牛奶, 面包}': {weight: 1, source: []},
+            '{尿布, 牛奶, 面包}': {weight: 1, source: []},
+            '{啤酒, 尿布, 面包}': {weight: 1, source: []}
         });
     }]));
 });

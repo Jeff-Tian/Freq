@@ -1,5 +1,5 @@
 angular.module('aprioriModule', ['setModule', 'arrayHelperModule'])
-    .controller('aprioriCtrl', ['$scope', 'itemSetOps', function($scope, itemSetOps) {
+    .controller('aprioriCtrl', ['$scope', 'itemSetOps', function ($scope, itemSetOps) {
         var database = [
             ['牛奶', '啤酒', '尿布'],
             ['面包', '黄油', '牛奶'],
@@ -42,10 +42,13 @@ angular.module('aprioriModule', ['setModule', 'arrayHelperModule'])
             }
         }
 
-        function join2ndCandidates(c) {
-            return itemSetOps.make3ItemSetFromItemSet(c, database);
+        function joinChildItemSet(c) {
+            return itemSetOps.makeSupperItemSetFrom(c, database);
         }
 
         filterCandidates($scope.secondCandidates);
-        $scope.thirdCandidates = join2ndCandidates($scope.secondCandidates);
+        $scope.thirdCandidates = joinChildItemSet($scope.secondCandidates);
+
+        filterCandidates($scope.thirdCandidates);
+        $scope.fourthCandidates = joinChildItemSet($scope.thirdCandidates);
     }]);
